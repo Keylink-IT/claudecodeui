@@ -43,6 +43,8 @@ interface ChatMessagesPaneProps {
   setOpenCodeModel: (model: string) => void;
   deepseekModel: string;
   setDeepSeekModel: (model: string) => void;
+  orchestrationModel: string;
+  setOrchestrationModel: (model: string) => void;
   providerModelCatalog: Partial<Record<LLMProvider, ProviderModelsDefinition>>;
   providerModelsLoading: boolean;
   tasksEnabled: boolean;
@@ -93,6 +95,8 @@ function ChatMessagesPane({
   setOpenCodeModel,
   deepseekModel,
   setDeepSeekModel,
+  orchestrationModel,
+  setOrchestrationModel,
   providerModelCatalog,
   providerModelsLoading,
   tasksEnabled,
@@ -201,6 +205,8 @@ function ChatMessagesPane({
           setOpenCodeModel={setOpenCodeModel}
           deepseekModel={deepseekModel}
           setDeepSeekModel={setDeepSeekModel}
+          orchestrationModel={orchestrationModel}
+          setOrchestrationModel={setOrchestrationModel}
           providerModelCatalog={providerModelCatalog}
           providerModelsLoading={providerModelsLoading}
           tasksEnabled={tasksEnabled}

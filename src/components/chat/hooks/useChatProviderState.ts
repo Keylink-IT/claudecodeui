@@ -22,9 +22,10 @@ const FALLBACK_DEFAULT_MODEL: Record<LLMProvider, string> = {
   codex: 'gpt-5.4',
   opencode: 'anthropic/claude-sonnet-4-5',
   deepseek: 'deepseek-v4-pro',
+  orchestration: 'fan-out',
 };
 
-const PROVIDERS: LLMProvider[] = ['claude', 'cursor', 'codex', 'opencode', 'deepseek'];
+const PROVIDERS: LLMProvider[] = ['claude', 'cursor', 'codex', 'opencode', 'deepseek', 'orchestration'];
 
 const readStoredProvider = (): LLMProvider => {
   const storedProvider = localStorage.getItem('selected-provider');
@@ -45,6 +46,7 @@ const FALLBACK_PERMISSION_MODES: Record<LLMProvider, PermissionMode[]> = {
   codex: ['default', 'acceptEdits', 'bypassPermissions'],
   opencode: ['default', 'acceptEdits', 'bypassPermissions', 'plan'],
   deepseek: ['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan'],
+  orchestration: ['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan'],
 };
 
 type ProviderCapabilities = {
@@ -119,6 +121,10 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
   const [deepseekModel, setDeepSeekModel] = useState<string>(() => {
     return localStorage.getItem('deepseek-model') || FALLBACK_DEFAULT_MODEL.deepseek;
   });
+  // Orchestration ("Agent SDK") stores a STRATEGY id in place of a model.
+  const [orchestrationModel, setOrchestrationModel] = useState<string>(() => {
+    return localStorage.getItem('orchestration-model') || FALLBACK_DEFAULT_MODEL.orchestration;
+  });
 
   /**
    * Backend-owned capability matrix keyed by provider. Drives the permission
@@ -167,8 +173,14 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
       return;
     }
 
-    setDeepSeekModel(model);
-    localStorage.setItem('deepseek-model', model);
+    if (targetProvider === 'deepseek') {
+      setDeepSeekModel(model);
+      localStorage.setItem('deepseek-model', model);
+      return;
+    }
+
+    setOrchestrationModel(model);
+    localStorage.setItem('orchestration-model', model);
   }, []);
 
   const setStoredProviderEffort = useCallback((targetProvider: LLMProvider, effort: string) => {
@@ -372,7 +384,8 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
     codex: codexModel,
     opencode: opencodeModel,
     deepseek: deepseekModel,
-  }), [claudeModel, cursorModel, codexModel, opencodeModel, deepseekModel]);
+    orchestration: orchestrationModel,
+  }), [claudeModel, cursorModel, codexModel, opencodeModel, deepseekModel, orchestrationModel]);
 
   useEffect(() => {
     const claude = providerModelCatalog.claude;
@@ -438,6 +451,19 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
       }
     }
   }, [providerModelCatalog.deepseek, deepseekModel]);
+
+  useEffect(() => {
+    const orchestration = providerModelCatalog.orchestration;
+    if (orchestration) {
+      const next = pickStoredOrCurrent('orchestration-model', orchestrationModel, orchestration);
+      if (next !== orchestrationModel) {
+        setOrchestrationModel(next);
+      }
+      if (localStorage.getItem('orchestration-model') !== next) {
+        localStorage.setItem('orchestration-model', next);
+      }
+    }
+  }, [providerModelCatalog.orchestration, orchestrationModel]);
 
   useEffect(() => {
     const nextEfforts: Partial<Record<LLMProvider, string>> = {};
@@ -645,6 +671,8 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
     setOpenCodeModel,
     deepseekModel,
     setDeepSeekModel,
+    orchestrationModel,
+    setOrchestrationModel,
     permissionMode,
     setPermissionMode,
     pendingPermissionRequests,

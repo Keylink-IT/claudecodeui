@@ -29,6 +29,7 @@ const PROVIDER_META: { id: LLMProvider; name: string }[] = [
   { id: "cursor", name: "Cursor" },
   { id: "opencode", name: "OpenCode" },
   { id: "deepseek", name: "DeepSeek" },
+  { id: "orchestration", name: "Agent SDK" },
 ];
 
 const MOD_KEY =
@@ -61,6 +62,8 @@ type ProviderSelectionEmptyStateProps = {
   setOpenCodeModel: (model: string) => void;
   deepseekModel: string;
   setDeepSeekModel: (model: string) => void;
+  orchestrationModel: string;
+  setOrchestrationModel: (model: string) => void;
   providerModelCatalog: Partial<Record<LLMProvider, ProviderModelsDefinition>>;
   providerModelsLoading: boolean;
   tasksEnabled: boolean;
@@ -90,11 +93,13 @@ function getCurrentModel(
   co: string,
   o: string,
   d: string,
+  or: string,
 ) {
   if (p === "claude") return c;
   if (p === "codex") return co;
   if (p === "opencode") return o;
   if (p === "deepseek") return d;
+  if (p === "orchestration") return or;
   return cu;
 }
 
@@ -104,6 +109,7 @@ function getProviderDisplayName(p: LLMProvider) {
   if (p === "codex") return "Codex";
   if (p === "opencode") return "OpenCode";
   if (p === "deepseek") return "DeepSeek";
+  if (p === "orchestration") return "Agent SDK";
   return "Claude";
 }
 
@@ -123,6 +129,8 @@ export default function ProviderSelectionEmptyState({
   setOpenCodeModel,
   deepseekModel,
   setDeepSeekModel,
+  orchestrationModel,
+  setOrchestrationModel,
   providerModelCatalog,
   providerModelsLoading,
   tasksEnabled,
@@ -152,6 +160,7 @@ export default function ProviderSelectionEmptyState({
     codexModel,
     opencodeModel,
     deepseekModel,
+    orchestrationModel,
   );
 
   const currentModelLabel = useMemo(() => {
@@ -176,12 +185,15 @@ export default function ProviderSelectionEmptyState({
       } else if (providerId === "deepseek") {
         setDeepSeekModel(modelValue);
         localStorage.setItem("deepseek-model", modelValue);
+      } else if (providerId === "orchestration") {
+        setOrchestrationModel(modelValue);
+        localStorage.setItem("orchestration-model", modelValue);
       } else {
         setCursorModel(modelValue);
         localStorage.setItem("cursor-model", modelValue);
       }
     },
-    [setClaudeModel, setCursorModel, setCodexModel, setOpenCodeModel, setDeepSeekModel],
+    [setClaudeModel, setCursorModel, setCodexModel, setOpenCodeModel, setDeepSeekModel, setOrchestrationModel],
   );
 
   const handleModelSelect = useCallback(
@@ -331,6 +343,10 @@ export default function ProviderSelectionEmptyState({
                 deepseek: t("providerSelection.readyPrompt.deepseek", {
                   model: deepseekModel,
                   defaultValue: "Ready with DeepSeek {{model}}",
+                }),
+                orchestration: t("providerSelection.readyPrompt.orchestration", {
+                  model: orchestrationModel,
+                  defaultValue: "Ready to orchestrate with the {{model}} strategy",
                 }),
               }[provider]
             }

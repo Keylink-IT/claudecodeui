@@ -4,6 +4,7 @@ import CodexLogo from './CodexLogo';
 import CursorLogo from './CursorLogo';
 import OpenCodeLogo from './OpenCodeLogo';
 import DeepSeekLogo from './DeepSeekLogo';
+import OrchestrationLogo from './OrchestrationLogo';
 
 type SessionProviderLogoProps = {
   provider?: LLMProvider | string | null;
@@ -28,6 +29,10 @@ export default function SessionProviderLogo({
 
   if (provider === 'deepseek') {
     return <DeepSeekLogo className={className} />;
+  }
+
+  if (provider === 'orchestration') {
+    return <OrchestrationLogo className={className} />;
   }
 
   return <ClaudeLogo className={className} />;

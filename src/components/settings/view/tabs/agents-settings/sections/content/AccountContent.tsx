@@ -63,6 +63,15 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     subtextClass: 'text-blue-700 dark:text-blue-300',
     buttonClass: 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800',
   },
+  orchestration: {
+    name: 'Agent SDK',
+    description: 'Multi-agent orchestration via the Claude Code agent',
+    bgClass: 'bg-amber-50 dark:bg-amber-900/20',
+    borderClass: 'border-amber-200 dark:border-amber-800',
+    textClass: 'text-amber-900 dark:text-amber-100',
+    subtextClass: 'text-amber-700 dark:text-amber-300',
+    buttonClass: 'bg-amber-600 hover:bg-amber-700 active:bg-amber-800',
+  },
 };
 
 export default function AccountContent({ agent, authStatus, onLogin }: AccountContentProps) {

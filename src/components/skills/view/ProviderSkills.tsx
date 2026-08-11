@@ -61,6 +61,7 @@ const PROVIDER_NAMES: Record<SkillsProvider, string> = {
   cursor: 'Cursor',
   opencode: 'OpenCode',
   deepseek: 'DeepSeek',
+  orchestration: 'Agent SDK',
 };
 
 const PROVIDER_SKILL_PATHS: Record<Exclude<SkillsProvider, 'opencode'>, string> = {
@@ -68,6 +69,7 @@ const PROVIDER_SKILL_PATHS: Record<Exclude<SkillsProvider, 'opencode'>, string> 
   codex: '~/.agents/skills/<skill-name>/SKILL.md',
   cursor: '~/.cursor/skills/<skill-name>/SKILL.md',
   deepseek: '~/.claude/skills/<skill-name>/SKILL.md',
+  orchestration: '~/.claude/skills/<skill-name>/SKILL.md',
 };
 
 const SCOPE_LABELS: Record<SkillsScope, string> = {

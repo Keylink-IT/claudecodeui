@@ -218,6 +218,14 @@ function mapCliOptionsToSDK(options = {}) {
 
   sdkOptions.model = options.model || CLAUDE_FALLBACK_MODELS.DEFAULT;
 
+  // Programmatic subagent definitions. The orchestration ("Agent SDK") provider
+  // registers a per-strategy role roster here (each an AgentDefinition with its
+  // own model/prompt); the main query delegates to them via the built-in Task
+  // tool. Claude/DeepSeek pass nothing, so their behaviour is unchanged.
+  if (options.agents && typeof options.agents === 'object') {
+    sdkOptions.agents = options.agents;
+  }
+
   const resolvedEffort = resolveClaudeEffort(
     sdkOptions.model,
     effort,
@@ -231,6 +239,13 @@ function mapCliOptionsToSDK(options = {}) {
     type: 'preset',
     preset: 'claude_code'
   };
+
+  // Optional caller-supplied system-prompt append (used by the orchestration
+  // provider to layer strategy instructions onto the claude_code preset). Claude
+  // and DeepSeek pass nothing, so their behaviour is unchanged.
+  if (typeof options.appendSystemPrompt === 'string' && options.appendSystemPrompt.trim()) {
+    sdkOptions.systemPrompt.append = options.appendSystemPrompt.trim();
+  }
 
   sdkOptions.settingSources = ['project', 'user', 'local'];
 

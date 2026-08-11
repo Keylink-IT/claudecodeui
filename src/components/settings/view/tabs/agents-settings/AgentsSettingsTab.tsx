@@ -51,6 +51,10 @@ export default function AgentsSettingsTab({
       authStatus: providerAuthStatus.deepseek,
       onLogin: () => onProviderLogin('deepseek'),
     },
+    orchestration: {
+      authStatus: providerAuthStatus.orchestration,
+      onLogin: () => onProviderLogin('orchestration'),
+    },
   }), [
     onProviderLogin,
     providerAuthStatus.claude,

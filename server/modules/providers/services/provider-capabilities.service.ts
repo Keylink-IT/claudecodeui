@@ -95,6 +95,21 @@ const PROVIDER_CAPABILITIES: Record<LLMProvider, ProviderCapabilities> = {
     supportsTokenUsage: true,
     supportsEffort: false,
   },
+  orchestration: {
+    provider: 'orchestration',
+    // Orchestration ("Agent SDK") runs the real Claude Code agent SDK on ambient
+    // Claude auth, so it shares Claude's permission modes and interactive
+    // permission-request support. Its "models" are strategies, not reasoning-effort
+    // tiers, so supportsEffort is false.
+    permissionModes: ['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan'],
+    defaultPermissionMode: 'default',
+    supportsImages: true,
+    supportsFiles: true,
+    supportsAbort: true,
+    supportsPermissionRequests: true,
+    supportsTokenUsage: true,
+    supportsEffort: false,
+  },
 };
 
 /**

@@ -19,7 +19,8 @@
     "cursor": "Cursor",
     "codex": "Codex",
     "opencode": "OpenCode",
-    "deepseek": "DeepSeek"
+    "deepseek": "DeepSeek",
+    "orchestration": "Agent SDK"
   },
   "tools": {
     "settings": "Tool Settings",
@@ -156,7 +157,8 @@
       "openai": "by OpenAI",
       "cursorEditor": "AI Code Editor",
       "google": "by Google",
-      "deepseek": "by DeepSeek"
+      "deepseek": "by DeepSeek",
+      "orchestration": "Multi-agent"
     },
     "readyPrompt": {
       "claude": "Ready to use Claude with {{model}}. Start typing your message below.",
@@ -164,6 +166,7 @@
       "codex": "Ready to use Codex with {{model}}. Start typing your message below.",
       "opencode": "Ready to use OpenCode with {{model}}. Start typing your message below.",
       "deepseek": "Ready to use DeepSeek with {{model}}. Start typing your message below.",
+      "orchestration": "Ready to orchestrate with the {{model}} strategy. Start typing your message below.",
       "default": "Select a provider above to begin"
     },
     "pressToSearch": "Press <kbd>{{shortcut}}</kbd> to search sessions, files, and commits"

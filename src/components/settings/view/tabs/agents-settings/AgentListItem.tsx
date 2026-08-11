@@ -36,6 +36,10 @@ const agentConfig: Record<AgentProvider, AgentConfig> = {
     name: 'OpenCode',
     color: 'zinc',
   },
+  orchestration: {
+    name: 'Agent SDK',
+    color: 'blue',
+  },
 };
 
 const colorClasses = {
