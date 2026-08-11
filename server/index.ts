@@ -52,6 +52,13 @@ import { initializeDatabase, sessionsDb } from './modules/database/index.js';
 import { configureWebPush } from './modules/notifications/index.js';
 import { IS_PLATFORM } from './constants/config.js';
 
+// --- Fork (lab.keylinkit) custom API routes (plain-JS ESM routers) ---
+import labRoutes from './routes/lab.js';
+import forgeRoutes from './routes/forge.js';
+import giteaRoutes from './routes/gitea.js';
+import consoleRoutes from './routes/console.js';
+import projectsCreateRoutes from './routes/projects-create.js';
+
 const __dirname = getModuleDirectory(import.meta.url);
 // The server source runs from /server, while the compiled output runs from /dist-server/server.
 // Resolving the app root once keeps every repo-level lookup below aligned across both layouts.
@@ -152,6 +159,10 @@ app.use('/api/auth', authRoutes);
 // File Tree API Routes (protected)
 app.use('/api/file-tree', authenticateToken, fileTreeRoutes);
 
+// Fork: supplementary project-creation endpoints (create-with-git, clone-progress).
+// Mounted before the native projects router so its specific routes match first.
+app.use('/api/projects', authenticateToken, projectsCreateRoutes);
+
 // Projects API Routes (protected)
 app.use('/api/projects', authenticateToken, projectModuleRoutes);
 
@@ -196,6 +207,12 @@ app.use('/api/providers', authenticateToken, providerRoutes);
 app.use('/api/agent', agentRoutes);
 
 app.use('/api/voice', authenticateToken, voiceRoutes);
+
+// --- Fork (lab.keylinkit) custom API routes ---
+app.use('/api/lab', authenticateToken, labRoutes);
+app.use('/api/forge', forgeRoutes);
+app.use('/api/gitea', giteaRoutes);
+app.use('/api/console', authenticateToken, consoleRoutes);
 
 // Serve public files (like api-docs.html)
 app.use(express.static(path.join(APP_ROOT, 'public')));

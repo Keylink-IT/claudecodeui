@@ -1,0 +1,16 @@
+{
+  "name": "lab-aws-ec2-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing AWS EC2 instance discovery as tools for Claude. Wraps the `aws` CLI, auth via single Vaultwarden-stored access key.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-aws-ec2-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -112,7 +112,8 @@
     "browser": "Browser",
     "notifications": "Notifications",
     "plugins": "Plugins",
-    "about": "About"
+    "about": "About",
+    "activity": "Team activity"
   },
   "notifications": {
     "title": "Notifications",
@@ -502,12 +503,6 @@
     "starterPluginLabel": "Starter Plugin",
     "starter": "Starter",
     "docs": "Docs",
-    "sections": {
-      "officialTitle": "Official Plugins",
-      "officialDescription": "Maintained by the CloudCLI team and ready for direct install.",
-      "unofficialTitle": "Other Plugins",
-      "unofficialDescription": "Unofficial plugins and integrations from other users. Review the source before installing."
-    },
     "starterPlugin": {
       "name": "Project Stats",
       "badge": "starter",
@@ -519,6 +514,18 @@
       "badge": "official",
       "description": "Integrated terminal with full shell access directly within the interface.",
       "install": "Install"
+    },
+    "morePlugins": "More",
+    "enable": "Enable",
+    "disable": "Disable",
+    "installAriaLabel": "Plugin git repository URL",
+    "tab": "tab",
+    "runningStatus": "running",
+    "sections": {
+      "officialTitle": "Official Plugins",
+      "officialDescription": "Maintained by the CloudCLI team and ready for direct install.",
+      "unofficialTitle": "Other Plugins",
+      "unofficialDescription": "Unofficial plugins and integrations from other users. Review the source before installing."
     },
     "scheduledPromptPlugin": {
       "name": "Scheduled Prompts",

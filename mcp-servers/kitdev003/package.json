@@ -1,0 +1,16 @@
+{
+  "name": "lab-kitdev003-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing Hyper-V VM management on KITDEV003 as tools for Claude. Wraps PowerShell cmdlets over SSH via Tailscale.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-kitdev003-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

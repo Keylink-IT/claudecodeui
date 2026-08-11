@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import {
+  Bot,
   Download,
   Eye,
   FileText,
@@ -10,6 +11,7 @@ import {
   Save,
   Sparkles,
   Sun,
+  Upload,
   X,
 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
@@ -30,6 +32,10 @@ type PrdEditorHeaderProps = {
   onSave: () => void;
   saving: boolean;
   saveSuccess: boolean;
+  onSubmitForge: () => void;
+  submittingForge: boolean;
+  forgeSubmitSuccess: boolean;
+  onGenerateWithAI?: () => void;
   isFullscreen: boolean;
   onToggleFullscreen: () => void;
   onClose: () => void;
@@ -75,6 +81,10 @@ export default function PrdEditorHeader({
   onSave,
   saving,
   saveSuccess,
+  onSubmitForge,
+  submittingForge,
+  forgeSubmitSuccess,
+  onGenerateWithAI,
   isFullscreen,
   onToggleFullscreen,
   onClose,
@@ -173,6 +183,20 @@ export default function PrdEditorHeader({
           icon={<Download className="h-5 w-5 md:h-4 md:w-4" />}
         />
 
+        {onGenerateWithAI && (
+          <button
+            onClick={onGenerateWithAI}
+            className={cn(
+              'px-3 py-2 rounded-md flex items-center gap-2 transition-colors text-sm font-medium min-h-[44px] md:min-h-0',
+              'bg-emerald-600 hover:bg-emerald-700 text-white',
+            )}
+            title="Have Claude analyze this project and fill in the PRD template"
+          >
+            <Bot className="h-4 w-4" />
+            <span className="hidden md:inline">Generate with AI</span>
+          </button>
+        )}
+
         <button
           onClick={onOpenGenerateTasks}
           disabled={!canGenerateTasks}
@@ -205,6 +229,30 @@ export default function PrdEditorHeader({
             <>
               <Save className="h-5 w-5 md:h-4 md:w-4" />
               <span className="hidden sm:inline">{saving ? 'Saving...' : 'Save PRD'}</span>
+            </>
+          )}
+        </button>
+
+        <button
+          onClick={onSubmitForge}
+          disabled={submittingForge}
+          className={cn(
+            'px-3 py-2 text-white rounded-md disabled:opacity-50 flex items-center gap-2 transition-colors min-h-[44px] md:min-h-0 text-sm font-medium',
+            forgeSubmitSuccess ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700',
+          )}
+          title="Submit PRD to Gitea for Forge pipeline"
+        >
+          {forgeSubmitSuccess ? (
+            <>
+              <svg className="h-5 w-5 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="hidden sm:inline">Submitted!</span>
+            </>
+          ) : (
+            <>
+              <Upload className="h-5 w-5 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">{submittingForge ? 'Submitting...' : 'Submit to Forge'}</span>
             </>
           )}
         </button>

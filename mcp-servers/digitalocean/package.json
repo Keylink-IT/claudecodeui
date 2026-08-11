@@ -1,0 +1,16 @@
+{
+  "name": "lab-do-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing DigitalOcean droplet management as tools for Claude. Wraps doctl.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-do-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

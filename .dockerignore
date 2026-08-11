@@ -1,0 +1,19 @@
+# Don't ship local artifacts into the build context.
+node_modules
+dist
+dist-server
+.git
+.github
+.husky
+.vscode
+.idea
+*.log
+.env
+.env.*
+!.env.example
+docker-compose*.yml
+README*.md
+CHANGELOG.md
+CONTRIBUTING.md
+NOTICE
+public/screenshots

@@ -1,0 +1,16 @@
+{
+  "name": "lab-whm-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for WHM/cPanel administration of the Keylink WordPress fleet (kitwebhost3/kitwebhost4) over SSH. Accounts, email, DNS, AutoSSL, permissions.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-whm-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -20,6 +20,7 @@ import type {
   ProviderRuntimeWriter,
 } from '@/shared/types.js';
 import { parseIncomingJsonObject } from '@/shared/utils.js';
+import * as presence from '@/presence.js';
 
 /**
  * Trust boundary for client-supplied image attachments: chat.send options come
@@ -192,6 +193,17 @@ async function handleChatSend(
 
   const clientOptions = (data.options ?? {}) as AnyRecord;
   const command = typeof data.content === 'string' ? data.content : '';
+
+  // Feed the Team activity "Now" panel: record the latest provider command for
+  // this connection (project/session + an 80-char preview). Best-effort;
+  // presence.noteActivity is a no-op for unregistered sockets.
+  presence.noteActivity(ws, {
+    provider,
+    command,
+    sessionId,
+    projectPath: (session.project_path as string | undefined) ?? (clientOptions.projectPath as string | undefined),
+    isResume: Boolean(session.provider_session_id),
+  });
 
   // Record what this turn runs with so reopening the session later restores the
   // same model, and so the resume path has a session-scoped answer to use.

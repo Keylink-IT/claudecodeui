@@ -29,6 +29,16 @@ const PROVIDER_WATCH_PATHS: Array<{ provider: LLMProvider; rootPath: string }> =
     provider: 'opencode',
     rootPath: path.join(os.homedir(), '.local', 'share', 'opencode'),
   },
+  {
+    // DeepSeek runs the Claude Code CLI with an isolated CLAUDE_CONFIG_DIR, so its
+    // transcripts live under the DeepSeek config dir's projects folder rather than
+    // ~/.claude/projects. Mirror the directory scanned by DeepSeekSessionSynchronizer.
+    provider: 'deepseek',
+    rootPath: path.join(
+      process.env.DEEPSEEK_CONFIG_DIR || path.join(os.homedir(), '.cloudcli', 'deepseek-config'),
+      'projects',
+    ),
+  },
 ];
 
 const WATCHER_IGNORED_PATTERNS = [

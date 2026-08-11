@@ -1,0 +1,16 @@
+{
+  "name": "lab-wp-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for WordPress fleet management (kitwebhost3/kitwebhost4) via wp-cli over SSH. Core/plugin/theme updates, users, permission hardening.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-wp-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "lab-inmotion-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing Inmotion Hosting (WHM/cPanel) account discovery + SSH for Claude. Multi-server auth via Vaultwarden-stored WHM API tokens + root SSH keys.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-inmotion-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

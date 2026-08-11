@@ -1,0 +1,16 @@
+{
+  "name": "lab-kitvm3-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing Hyper-V VM management on KITVM3 as tools for Claude. Wraps PowerShell cmdlets over SSH-via-Cloudflare-Tunnel.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-kitvm3-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

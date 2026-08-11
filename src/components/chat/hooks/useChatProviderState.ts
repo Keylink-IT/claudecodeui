@@ -21,9 +21,10 @@ const FALLBACK_DEFAULT_MODEL: Record<LLMProvider, string> = {
   cursor: 'gpt-5.3-codex',
   codex: 'gpt-5.4',
   opencode: 'anthropic/claude-sonnet-4-5',
+  deepseek: 'deepseek-v4-pro',
 };
 
-const PROVIDERS: LLMProvider[] = ['claude', 'cursor', 'codex', 'opencode'];
+const PROVIDERS: LLMProvider[] = ['claude', 'cursor', 'codex', 'opencode', 'deepseek'];
 
 const readStoredProvider = (): LLMProvider => {
   const storedProvider = localStorage.getItem('selected-provider');
@@ -43,6 +44,7 @@ const FALLBACK_PERMISSION_MODES: Record<LLMProvider, PermissionMode[]> = {
   cursor: ['default', 'acceptEdits', 'bypassPermissions', 'plan'],
   codex: ['default', 'acceptEdits', 'bypassPermissions'],
   opencode: ['default', 'acceptEdits', 'bypassPermissions', 'plan'],
+  deepseek: ['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan'],
 };
 
 type ProviderCapabilities = {
@@ -114,6 +116,9 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
   const [opencodeModel, setOpenCodeModel] = useState<string>(() => {
     return localStorage.getItem('opencode-model') || FALLBACK_DEFAULT_MODEL.opencode;
   });
+  const [deepseekModel, setDeepSeekModel] = useState<string>(() => {
+    return localStorage.getItem('deepseek-model') || FALLBACK_DEFAULT_MODEL.deepseek;
+  });
 
   /**
    * Backend-owned capability matrix keyed by provider. Drives the permission
@@ -156,8 +161,14 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
       return;
     }
 
-    setOpenCodeModel(model);
-    localStorage.setItem('opencode-model', model);
+    if (targetProvider === 'opencode') {
+      setOpenCodeModel(model);
+      localStorage.setItem('opencode-model', model);
+      return;
+    }
+
+    setDeepSeekModel(model);
+    localStorage.setItem('deepseek-model', model);
   }, []);
 
   const setStoredProviderEffort = useCallback((targetProvider: LLMProvider, effort: string) => {
@@ -360,7 +371,8 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
     cursor: cursorModel,
     codex: codexModel,
     opencode: opencodeModel,
-  }), [claudeModel, cursorModel, codexModel, opencodeModel]);
+    deepseek: deepseekModel,
+  }), [claudeModel, cursorModel, codexModel, opencodeModel, deepseekModel]);
 
   useEffect(() => {
     const claude = providerModelCatalog.claude;
@@ -413,6 +425,19 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
       }
     }
   }, [providerModelCatalog.opencode, opencodeModel]);
+
+  useEffect(() => {
+    const deepseek = providerModelCatalog.deepseek;
+    if (deepseek) {
+      const next = pickStoredOrCurrent('deepseek-model', deepseekModel, deepseek);
+      if (next !== deepseekModel) {
+        setDeepSeekModel(next);
+      }
+      if (localStorage.getItem('deepseek-model') !== next) {
+        localStorage.setItem('deepseek-model', next);
+      }
+    }
+  }, [providerModelCatalog.deepseek, deepseekModel]);
 
   useEffect(() => {
     const nextEfforts: Partial<Record<LLMProvider, string>> = {};
@@ -618,6 +643,8 @@ export function useChatProviderState({ selectedSession, selectedProject: _select
     currentProviderModelOptions,
     opencodeModel,
     setOpenCodeModel,
+    deepseekModel,
+    setDeepSeekModel,
     permissionMode,
     setPermissionMode,
     pendingPermissionRequests,

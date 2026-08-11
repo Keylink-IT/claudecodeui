@@ -1,0 +1,16 @@
+{
+  "name": "lab-cf-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing Cloudflare zone, DNS, and tunnel management as tools for Claude. Multi-account via Vaultwarden-stored API tokens.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-cf-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
