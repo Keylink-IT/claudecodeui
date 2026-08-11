@@ -166,6 +166,13 @@ function mapCliOptionsToSDK(options = {}) {
   // Since SDK 0.2.113, options.env replaces process.env instead of overlaying it.
   sdkOptions.env = { ...process.env };
 
+  // Allow per-call env overrides (e.g. DeepSeek injects ANTHROPIC_BASE_URL,
+  // ANTHROPIC_AUTH_TOKEN, ANTHROPIC_MODEL, and CLAUDE_CONFIG_DIR) to flow to the
+  // spawned CLI on top of the inherited host env.
+  if (options.env && typeof options.env === 'object') {
+    sdkOptions.env = { ...sdkOptions.env, ...options.env };
+  }
+
   // Resolve the executable eagerly on Windows because the SDK uses raw child_process.spawn,
   // which does not reliably follow npm's shell wrappers like cross-spawn does.
   sdkOptions.pathToClaudeCodeExecutable = resolveClaudeCodeExecutablePath(process.env.CLAUDE_CLI_PATH);
@@ -459,6 +466,11 @@ async function loadMcpConfig(cwd) {
  */
 async function queryClaudeSDK(command, options = {}, ws) {
   const { sessionId, sessionSummary } = options;
+  // Provider tag for emitted messages. Defaults to 'claude' so the Claude
+  // provider is unchanged; the DeepSeek runner passes options.provider='deepseek'
+  // (plus options.env / options.model) to run the same agent harness against
+  // DeepSeek's Anthropic-compatible endpoint.
+  const provider = options.provider || 'claude';
   let capturedSessionId = sessionId;
   let sessionCreatedSent = false;
 
@@ -505,7 +517,7 @@ async function queryClaudeSDK(command, options = {}, ws) {
         hooks: [async (input) => {
           const message = typeof input?.message === 'string' ? input.message : 'Claude requires your attention.';
           emitNotification(createNotificationEvent({
-            provider: 'claude',
+            provider,
             sessionId: capturedSessionId || sessionId || null,
             kind: 'action_required',
             code: 'agent.notification',
@@ -549,9 +561,9 @@ async function queryClaudeSDK(command, options = {}, ws) {
       }
 
       const requestId = createRequestId();
-      ws.send(createNormalizedMessage({ kind: 'permission_request', requestId, toolName, input, sessionId: capturedSessionId || sessionId || null, provider: 'claude' }));
+      ws.send(createNormalizedMessage({ kind: 'permission_request', requestId, toolName, input, sessionId: capturedSessionId || sessionId || null, provider }));
       emitNotification(createNotificationEvent({
-        provider: 'claude',
+        provider,
         sessionId: capturedSessionId || sessionId || null,
         kind: 'action_required',
         code: 'permission.required',
@@ -571,7 +583,7 @@ async function queryClaudeSDK(command, options = {}, ws) {
           _receivedAt: new Date(),
         },
         onCancel: (reason) => {
-          ws.send(createNormalizedMessage({ kind: 'permission_cancelled', requestId, reason, sessionId: capturedSessionId || sessionId || null, provider: 'claude' }));
+          ws.send(createNormalizedMessage({ kind: 'permission_cancelled', requestId, reason, sessionId: capturedSessionId || sessionId || null, provider }));
         }
       });
       if (!decision) {
@@ -647,7 +659,7 @@ async function queryClaudeSDK(command, options = {}, ws) {
         // Send session-created event only once for new sessions
         if (!sessionId && !sessionCreatedSent) {
           sessionCreatedSent = true;
-          ws.send(createNormalizedMessage({ kind: 'session_created', newSessionId: capturedSessionId, sessionId: capturedSessionId, provider: 'claude' }));
+          ws.send(createNormalizedMessage({ kind: 'session_created', newSessionId: capturedSessionId, sessionId: capturedSessionId, provider }));
         }
       } else {
         // session_id already captured
@@ -664,13 +676,17 @@ async function queryClaudeSDK(command, options = {}, ws) {
         if (transformedMessage.parentToolUseId && !msg.parentToolUseId) {
           msg.parentToolUseId = transformedMessage.parentToolUseId;
         }
+        // The shared Claude adapter hard-tags messages provider:'claude';
+        // override with the actual provider so DeepSeek-via-SDK content
+        // (text/thinking/tool_use/tool_result) renders under DeepSeek.
+        msg.provider = provider;
         ws.send(msg);
       }
 
       // Extract and send token budget updates from assistant/result usage payloads
       const tokenBudgetData = extractTokenBudget(message);
       if (tokenBudgetData) {
-        ws.send(createNormalizedMessage({ kind: 'status', text: 'token_budget', tokenBudget: tokenBudgetData, sessionId: capturedSessionId || sessionId || null, provider: 'claude' }));
+        ws.send(createNormalizedMessage({ kind: 'status', text: 'token_budget', tokenBudget: tokenBudgetData, sessionId: capturedSessionId || sessionId || null, provider }));
       }
     }
 
@@ -683,11 +699,11 @@ async function queryClaudeSDK(command, options = {}, ws) {
     // terminal `complete` (aborted: true) was already sent by abort-session.
     const wasAborted = capturedSessionId ? abortedSessionIds.delete(capturedSessionId) : false;
     if (!wasAborted) {
-      ws.send(createCompleteMessage({ provider: 'claude', sessionId: capturedSessionId || sessionId || null, exitCode: 0 }));
+      ws.send(createCompleteMessage({ provider, sessionId: capturedSessionId || sessionId || null, exitCode: 0 }));
     }
     notifyRunStopped({
       userId: ws?.userId || null,
-      provider: 'claude',
+      provider,
       sessionId: capturedSessionId || sessionId || null,
       sessionName: sessionSummary,
       stopReason: wasAborted ? 'aborted' : 'completed'
@@ -716,11 +732,11 @@ async function queryClaudeSDK(command, options = {}, ws) {
       : error.message;
 
     // Send error to WebSocket, then the terminal complete
-    ws.send(createNormalizedMessage({ kind: 'error', content: errorContent, sessionId: capturedSessionId || sessionId || null, provider: 'claude' }));
-    ws.send(createCompleteMessage({ provider: 'claude', sessionId: capturedSessionId || sessionId || null, exitCode: 1 }));
+    ws.send(createNormalizedMessage({ kind: 'error', content: errorContent, sessionId: capturedSessionId || sessionId || null, provider }));
+    ws.send(createCompleteMessage({ provider, sessionId: capturedSessionId || sessionId || null, exitCode: 1 }));
     notifyRunFailed({
       userId: ws?.userId || null,
-      provider: 'claude',
+      provider,
       sessionId: capturedSessionId || sessionId || null,
       sessionName: sessionSummary,
       error

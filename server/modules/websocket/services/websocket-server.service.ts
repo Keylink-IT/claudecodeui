@@ -8,6 +8,7 @@ import { handlePluginWsProxy } from '@/modules/websocket/services/plugin-websock
 import { handleShellConnection } from '@/modules/websocket/services/shell-websocket.service.js';
 import { handleDesktopNotificationsConnection } from '@/modules/notifications/index.js';
 import type { AuthenticatedWebSocketRequest } from '@/shared/types.js';
+import * as presence from '@/presence.js';
 
 type WebSocketServerDependencies = {
   verifyClient: Parameters<typeof verifyWebSocketClient>[1];
@@ -60,6 +61,8 @@ export function createWebSocketServer(
     }
 
     if (pathname === '/ws') {
+      // Track this chat connection for the Team activity "Now" panel.
+      presence.register(ws, incomingRequest);
       handleChatConnection(ws, incomingRequest, dependencies.chat);
       return;
     }

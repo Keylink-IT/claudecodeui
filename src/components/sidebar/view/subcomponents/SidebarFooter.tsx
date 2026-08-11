@@ -1,12 +1,18 @@
-import { Settings, ArrowUpCircle, Bug, AlertTriangle } from 'lucide-react';
+import { Settings, ArrowUpCircle, Bug, AlertTriangle, Github } from 'lucide-react';
 import type { TFunction } from 'i18next';
 import { IS_PLATFORM } from '../../../../constants/config';
 import type { ReleaseInfo } from '../../../../types/sharedTypes';
 
-const GITHUB_ISSUES_URL = 'https://github.com/siteboon/claudecodeui/issues/new';
-const GITHUB_REPO_URL = 'https://github.com/siteboon/claudecodeui';
+// Fork-rewritten: point Report Issue and the brand line at OUR fork instead
+// of upstream siteboon/claudecodeui — bug reports for the modified instance
+// belong on the fork, not on upstream's tracker.
+const GITHUB_ISSUES_URL = 'https://github.com/adminbuildbots/claudecodeui/issues/new';
+const GITHUB_REPO_URL = 'https://github.com/adminbuildbots/claudecodeui';
 
 const DISCORD_INVITE_URL = 'https://discord.gg/buxwujPNRE';
+// AGPL-3.0 §13 (network-use clause): we must offer the Corresponding Source
+// to anyone interacting with this modified instance over a network.
+const SOURCE_URL = 'https://github.com/adminbuildbots/claudecodeui';
 
 function DiscordIcon({ className }: { className?: string }) {
   return (
@@ -132,6 +138,19 @@ export default function SidebarFooter({
         </a>
       </div>
 
+      {/* Desktop source link (AGPL §13) */}
+      <div className="hidden px-2 py-1.5 md:block">
+        <a
+          href={SOURCE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground"
+        >
+          <Github className="h-3.5 w-3.5" />
+          <span className="text-sm">Source code</span>
+        </a>
+      </div>
+
       {/* Desktop settings */}
       <div className="hidden px-2 py-1.5 md:block">
         <button
@@ -184,6 +203,21 @@ export default function SidebarFooter({
             <DiscordIcon className="h-4 w-4 text-muted-foreground" />
           </div>
           <span className="text-sm font-normal text-foreground">{t('actions.joinCommunity')}</span>
+        </a>
+      </div>
+
+      {/* Mobile source link (AGPL §13) */}
+      <div className="px-3 pt-2 md:hidden">
+        <a
+          href={SOURCE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-12 w-full items-center gap-3.5 rounded-xl bg-muted/40 px-4 transition-all hover:bg-muted/60 active:scale-[0.98]"
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-background/80">
+            <Github className="w-4.5 h-4.5 text-muted-foreground" />
+          </div>
+          <span className="text-base font-medium text-foreground">Source code</span>
         </a>
       </div>
 

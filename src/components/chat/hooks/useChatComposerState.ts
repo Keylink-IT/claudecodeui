@@ -46,6 +46,7 @@ interface UseChatComposerStateArgs {
   codexModel: string;
   currentProviderEffort: string;
   opencodeModel: string;
+  deepseekModel: string;
   isLoading: boolean;
   canAbortSession: boolean;
   tokenBudget: Record<string, unknown> | null;
@@ -198,6 +199,7 @@ export function useChatComposerState({
   codexModel,
   currentProviderEffort,
   opencodeModel,
+  deepseekModel,
   isLoading,
   canAbortSession,
   tokenBudget,
@@ -375,7 +377,9 @@ export function useChatComposerState({
               ? codexModel
               : provider === 'opencode'
                   ? opencodeModel
-                  : claudeModel,
+                  : provider === 'deepseek'
+                    ? deepseekModel
+                    : claudeModel,
           tokenUsage: tokenBudget,
         };
 
@@ -429,6 +433,7 @@ export function useChatComposerState({
       currentSessionId,
       cursorModel,
       opencodeModel,
+      deepseekModel,
       handleBuiltInCommand,
       handleCustomCommand,
       input,
@@ -621,7 +626,9 @@ export function useChatComposerState({
           ? codexModel
           : provider === 'opencode'
             ? opencodeModel
-            : claudeModel;
+            : provider === 'deepseek'
+              ? deepseekModel
+              : claudeModel;
 
     return {
       model,
@@ -637,6 +644,7 @@ export function useChatComposerState({
     currentProviderEffort,
     cursorModel,
     opencodeModel,
+    deepseekModel,
     permissionMode,
     provider,
     resolvePermissionModeForProvider,

@@ -1,4 +1,4 @@
-import { GitBranch, Info, Key, Puzzle } from 'lucide-react';
+import { Activity, GitBranch, Info, Key, Puzzle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { SettingsMainTab } from '../types/types';
 
@@ -22,6 +22,7 @@ const TAB_CONFIG: MainTabConfig[] = [
   { id: 'tasks', labelKey: 'mainTabs.tasks' },
   { id: 'notifications', labelKey: 'mainTabs.notifications' },
   { id: 'plugins', labelKey: 'mainTabs.plugins', icon: Puzzle },
+  { id: 'activity', labelKey: 'mainTabs.activity', icon: Activity },
   { id: 'about', labelKey: 'mainTabs.about', icon: Info },
 ];
 

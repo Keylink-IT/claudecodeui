@@ -28,6 +28,10 @@ const agentConfig: Record<AgentProvider, AgentConfig> = {
     name: 'Codex',
     color: 'gray',
   },
+  deepseek: {
+    name: 'DeepSeek',
+    color: 'blue',
+  },
   opencode: {
     name: 'OpenCode',
     color: 'zinc',

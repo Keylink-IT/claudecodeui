@@ -1,0 +1,16 @@
+{
+  "name": "lab-environments-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing per-project production/development environment assignments. Reads/writes .lab/environments.json at project paths.",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "lab-environments-mcp": "./server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

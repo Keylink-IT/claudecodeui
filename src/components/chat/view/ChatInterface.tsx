@@ -73,6 +73,8 @@ function ChatInterface({
     currentProviderEffortOptions,
     opencodeModel,
     setOpenCodeModel,
+    deepseekModel,
+    setDeepSeekModel,
     permissionMode,
     pendingPermissionRequests,
     setPendingPermissionRequests,
@@ -203,6 +205,7 @@ function ChatInterface({
     codexModel,
     currentProviderEffort,
     opencodeModel,
+    deepseekModel,
     isLoading: isProcessing,
     canAbortSession,
     tokenBudget,
@@ -339,6 +342,8 @@ function ChatInterface({
           setCodexModel={setCodexModel}
           opencodeModel={opencodeModel}
           setOpenCodeModel={setOpenCodeModel}
+          deepseekModel={deepseekModel}
+          setDeepSeekModel={setDeepSeekModel}
           providerModelCatalog={providerModelCatalog}
           providerModelsLoading={providerModelsLoading}
           tasksEnabled={tasksEnabled}

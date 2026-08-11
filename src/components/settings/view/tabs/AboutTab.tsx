@@ -1,15 +1,18 @@
-import { Cloud, ExternalLink, MessageSquare, Star, Users } from 'lucide-react';
+import { ExternalLink, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { CLOUDCLI_WORDMARK_FONT_FAMILY } from '../../../../constants/branding';
-import { IS_PLATFORM } from '../../../../constants/config';
 import { useVersionCheck } from '../../../../hooks/useVersionCheck';
-import PremiumFeatureCard from '../PremiumFeatureCard';
 
-const GITHUB_REPO_URL = 'https://github.com/siteboon/claudecodeui';
+// Fork-rewritten: this About tab originally promoted upstream cloudcli.ai
+// (Star on GitHub button, "Try CloudCLI Hosted" CTA, "CloudCLI Pro Features"
+// upsell cards). Replaced with a fork-friendly version: shows version info,
+// links to OUR fork, and notes the AGPL license. The version-check hook
+// still polls upstream for new releases since the fork tracks upstream.
+const FORK_REPO_URL = 'https://github.com/adminbuildbots/claudecodeui';
+const UPSTREAM_REPO_URL = 'https://github.com/siteboon/claudecodeui';
 const DISCORD_URL = 'https://discord.gg/buxwujPNRE';
 const DOCS_URL = 'https://cloudcli.ai/docs/plugin-overview';
-const CLOUDCLI_URL = 'https://cloudcli.ai';
 
 function GitHubIcon({ className }: { className?: string }) {
   return (
@@ -30,7 +33,7 @@ function DiscordIcon({ className }: { className?: string }) {
 export default function AboutTab() {
   const { t } = useTranslation('settings');
   const { updateAvailable, latestVersion, currentVersion, releaseInfo } = useVersionCheck('siteboon', 'claudecodeui');
-  const releasesUrl = releaseInfo?.htmlUrl || `${GITHUB_REPO_URL}/releases`;
+  const releasesUrl = releaseInfo?.htmlUrl || `${UPSTREAM_REPO_URL}/releases`;
 
   return (
     <div className="space-y-6">
@@ -68,33 +71,42 @@ export default function AboutTab() {
             )}
           </div>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            Open-source AI coding assistant interface
+            Open-source AI coding assistant interface (lab.keylinkit fork)
           </p>
         </div>
       </div>
 
-      {/* Star on GitHub button */}
-      <a
-        href={GITHUB_REPO_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
-      >
-        <GitHubIcon className="h-4 w-4" />
-        <Star className="h-3.5 w-3.5" />
-        <span>Star on GitHub</span>
-      </a>
+      {/* About this fork */}
+      <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-sm">
+        <h4 className="text-sm font-medium text-foreground">About this fork</h4>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          This is a private fork of CloudCLI deployed for the lab.keylinkit project.
+          It tracks upstream releases but applies fork-specific changes (chat panel
+          layout, deploy infrastructure, branding) on top. Updates are applied
+          manually via <code className="rounded bg-muted px-1 py-0.5 font-mono text-[11px]">git pull</code> + container rebuild,
+          not through the in-UI update button.
+        </p>
+      </div>
 
       {/* Links */}
       <div className="flex flex-wrap gap-4 text-sm">
         <a
-          href={GITHUB_REPO_URL}
+          href={FORK_REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
         >
           <GitHubIcon className="h-4 w-4" />
-          GitHub
+          Source (fork)
+        </a>
+        <a
+          href={UPSTREAM_REPO_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <GitHubIcon className="h-4 w-4" />
+          Upstream
         </a>
         <a
           href={DISCORD_URL}
@@ -103,7 +115,7 @@ export default function AboutTab() {
           className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
         >
           <DiscordIcon className="h-4 w-4" />
-          Discord
+          Upstream Discord
         </a>
         <a
           href={DOCS_URL}
@@ -112,54 +124,9 @@ export default function AboutTab() {
           className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Docs
-        </a>
-        <a
-          href={CLOUDCLI_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-          cloudcli.ai
+          Plugin docs (upstream)
         </a>
       </div>
-
-      {/* Hosted CTA (OSS mode only) */}
-      {!IS_PLATFORM && (
-        <div className="rounded-xl border border-primary/10 bg-primary/5 p-4">
-          <h4 className="text-sm font-medium text-foreground">Try CloudCLI Hosted</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Team collaboration, shared MCP configs, settings sync across environments, and managed infrastructure.
-          </p>
-          <a
-            href={CLOUDCLI_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:underline"
-          >
-            Learn more
-            <ExternalLink className="h-3 w-3" />
-          </a>
-        </div>
-      )}
-
-      {/* Premium feature placeholders (OSS mode only) */}
-      {!IS_PLATFORM && (
-        <div className="space-y-4 border-t border-border/50 pt-6">
-          <h3 className="text-sm font-medium text-foreground">CloudCLI Pro Features</h3>
-          <PremiumFeatureCard
-            icon={<Cloud className="h-5 w-5" />}
-            title="Sync Settings"
-            description="Keep your preferences, MCP configs, and theme in sync across all your environments."
-          />
-          <PremiumFeatureCard
-            icon={<Users className="h-5 w-5" />}
-            title="Team Management"
-            description="Multiple users, role-based access, and shared projects for your team."
-          />
-        </div>
-      )}
 
       {/* License */}
       <div className="border-t border-border/50 pt-4">

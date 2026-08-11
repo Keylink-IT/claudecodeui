@@ -51,9 +51,15 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Everything else — network-first
+  // Everything else — network-first, falling back to cache, then a real
+  // Response so respondWith() never resolves to undefined for URLs that
+  // were never cached (e.g. per-session routes like /session/<id>).
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request).catch(() =>
+      caches.match(event.request).then(cached =>
+        cached || new Response('Network error', { status: 503, statusText: 'Service Unavailable' })
+      )
+    )
   );
 });
 

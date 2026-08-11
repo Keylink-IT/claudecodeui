@@ -37,7 +37,7 @@ export default function WizardFooter({
         )}
       </Button>
 
-      <Button onClick={step === 2 ? onCreate : onNext} disabled={isCreating}>
+      <Button onClick={step === 6 ? onCreate : onNext} disabled={isCreating}>
         {isCreating ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -45,7 +45,7 @@ export default function WizardFooter({
               ? t('projectWizard.buttons.cloning', { defaultValue: 'Cloning...' })
               : t('projectWizard.buttons.creating')}
           </>
-        ) : step === 2 ? (
+        ) : step === 6 ? (
           <>
             <Check className="mr-1 h-4 w-4" />
             {t('projectWizard.buttons.createProject')}

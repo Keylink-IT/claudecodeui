@@ -62,6 +62,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   cursor: 'Cursor',
   codex: 'Codex',
   opencode: 'OpenCode',
+  deepseek: 'DeepSeek',
 };
 
 const FALLBACK_COMMANDS: CommandEntry[] = [

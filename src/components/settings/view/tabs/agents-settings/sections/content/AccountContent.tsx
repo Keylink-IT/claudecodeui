@@ -54,6 +54,15 @@ const agentConfig: Record<AgentProvider, AgentVisualConfig> = {
     subtextClass: 'text-zinc-700 dark:text-zinc-300',
     buttonClass: 'bg-zinc-900 hover:bg-zinc-800 active:bg-zinc-950 dark:bg-zinc-700 dark:hover:bg-zinc-600',
   },
+  deepseek: {
+    name: 'DeepSeek',
+    description: 'DeepSeek V4 via the Claude Code agent',
+    bgClass: 'bg-blue-50 dark:bg-blue-900/20',
+    borderClass: 'border-blue-200 dark:border-blue-800',
+    textClass: 'text-blue-900 dark:text-blue-100',
+    subtextClass: 'text-blue-700 dark:text-blue-300',
+    buttonClass: 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800',
+  },
 };
 
 export default function AccountContent({ agent, authStatus, onLogin }: AccountContentProps) {

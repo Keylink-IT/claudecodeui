@@ -3,9 +3,23 @@ import bcrypt from 'bcrypt';
 import { userDb } from '../modules/database/index.js';
 import { getConnection } from '../modules/database/connection.js';
 import { generateToken, authenticateToken } from '../middleware/auth.js';
+import * as presence from '../presence.js';
+import { loginEventsDb } from '../login-events.js';
 
 const router = express.Router();
 const db = getConnection();
+
+// Resolve the real client IP. Cloudflare Tunnel sets CF-Connecting-IP with the
+// browser's address; X-Forwarded-For is the fallback; req.ip works once
+// app.set('trust proxy', 1) is in place (see server/index.js).
+function getClientIp(req) {
+  return (
+    req.headers['cf-connecting-ip'] ||
+    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+    req.ip ||
+    null
+  );
+}
 
 // Check auth status and setup requirements
 router.get('/status', async (req, res) => {
@@ -59,6 +73,11 @@ router.post('/register', async (req, res) => {
 
       // Update last login (non-fatal, outside transaction)
       userDb.updateLastLogin(user.id);
+      loginEventsDb.recordEvent(user.id, {
+        eventType: 'register',
+        ipAddress: getClientIp(req),
+        userAgent: req.headers['user-agent'] || null,
+      });
 
       res.json({
         success: true,
@@ -107,7 +126,12 @@ router.post('/login', async (req, res) => {
     
     // Update last login
     userDb.updateLastLogin(user.id);
-    
+    loginEventsDb.recordEvent(user.id, {
+      eventType: 'login',
+      ipAddress: getClientIp(req),
+      userAgent: req.headers['user-agent'] || null,
+    });
+
     res.json({
       success: true,
       user: { id: user.id, username: user.username },
@@ -132,6 +156,27 @@ router.post('/logout', authenticateToken, (req, res) => {
   // In a simple JWT system, logout is mainly client-side
   // This endpoint exists for consistency and potential future logging
   res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// Currently-active chat WebSockets — the "Now" panel feed. Ephemeral, in-memory,
+// reset on server restart. Each entry is one connected chat client with its IP,
+// browser, and most recent provider command (project, session, brief preview).
+router.get('/active-sessions', authenticateToken, (req, res) => {
+  res.json({ sessions: presence.list() });
+});
+
+// Recent login activity — visible to any authenticated user. Single-user lab,
+// so the audience is the team sharing the account; the IP and user-agent are
+// what differentiate one team member's session from another's.
+router.get('/login-events', authenticateToken, (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 200);
+    const events = loginEventsDb.getRecentEvents(limit);
+    res.json({ events });
+  } catch (error) {
+    console.error('Login events error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;

@@ -58,6 +58,8 @@ export const api = {
     }),
     user: () => authenticatedFetch('/api/auth/user'),
     logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
+    loginEvents: (limit = 50) => authenticatedFetch(`/api/auth/login-events?limit=${limit}`),
+    activeSessions: () => authenticatedFetch('/api/auth/active-sessions'),
   },
 
   // Protected endpoints
@@ -241,6 +243,14 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ path: folderPath }),
     }),
+
+  // Forge endpoints (keylink — submit a PRD to the Gitea forge-prds repo)
+  forge: {
+    submit: (fileName, content) => authenticatedFetch('/api/forge/submit', {
+      method: 'POST',
+      body: JSON.stringify({ fileName, content }),
+    }),
+  },
 
   // User endpoints
   user: {

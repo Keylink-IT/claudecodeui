@@ -61,7 +61,7 @@ export const CLAUDE_FALLBACK_MODELS: ProviderModelsDefinition = {
     },
     {
       value: 'sonnet[1m]',
-      label: 'Sonnet (1M context)',
+      label: 'Sonnet 4.6 (1M context)',
       description: 'Sonnet 4.6 for long sessions · $3/$15 per Mtok',
       effort: {
         default: 'high',
@@ -89,6 +89,12 @@ export const CLAUDE_FALLBACK_MODELS: ProviderModelsDefinition = {
       },
     },
     {
+      value: 'opusplan',
+      label: 'Opus Plan',
+      description: 'Opus 4.8 to plan, Sonnet 4.6 to execute · best for complex work',
+    },
+
+    {
       value: 'opus[1m]',
       label: 'Opus 4.8 (1M context)',
       description: 'Opus 4.8 with 1M context · Most capable for complex work · $5/$25 per Mtok',
@@ -105,7 +111,7 @@ export const CLAUDE_FALLBACK_MODELS: ProviderModelsDefinition = {
     },
     {
       value: 'haiku',
-      label: 'Haiku',
+      label: 'Haiku 4.5',
       description: 'Haiku 4.5 · Fastest for quick answers · $1/$5 per Mtok',
     },
   ],

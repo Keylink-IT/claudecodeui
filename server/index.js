@@ -56,6 +56,11 @@ import agentRoutes from './routes/agent.js';
 import projectModuleRoutes from './modules/projects/projects.routes.js';
 import notificationRoutes from './modules/notifications/notifications.routes.js';
 import userRoutes from './routes/user.js';
+import labRoutes from './routes/lab.js';
+import forgeRoutes from './routes/forge.js';
+import giteaRoutes from './routes/gitea.js';
+import consoleRoutes from './routes/console.js';
+import projectsCreateRoutes from './routes/projects-create.js';
 import pluginsRoutes from './routes/plugins.js';
 import providerRoutes from './modules/providers/provider.routes.js';
 import voiceRoutes from './voice-proxy.js';
@@ -100,7 +105,40 @@ function readUsageNumber(value) {
 }
 
 const app = express();
+// Behind the Cloudflare Tunnel / reverse proxy: trust X-Forwarded-* so req.ip
+// resolves to the real client (used by the login-events recorder in auth.js).
+app.set('trust proxy', 1);
 const server = http.createServer(app);
+
+// DeepSeek reuses the Claude Code agent SDK run against DeepSeek's
+// Anthropic-compatible endpoint. The only differences are the auth token, the
+// selected model, and an isolated CLAUDE_CONFIG_DIR so its sessions/projects are
+// kept separate from claude. These are injected per-call via options.env, which
+// mapCliOptionsToSDK overlays onto the inherited host env, plus a provider tag so
+// the live stream renders under DeepSeek.
+const queryDeepSeek = (command, options, writer) => {
+    const dsKey = process.env.DEEPSEEK_API_KEY || '';
+    const dsModel = options?.model || 'deepseek-v4-pro';
+    const configDir = process.env.DEEPSEEK_CONFIG_DIR
+        || path.join(os.homedir(), '.cloudcli', 'deepseek-config');
+    return queryClaudeSDK(
+        command,
+        {
+            ...options,
+            provider: 'deepseek',
+            model: dsModel,
+            env: {
+                ...process.env,
+                ANTHROPIC_BASE_URL: 'https://api.deepseek.com/anthropic',
+                ANTHROPIC_AUTH_TOKEN: dsKey,
+                ANTHROPIC_API_KEY: dsKey,
+                ANTHROPIC_MODEL: dsModel,
+                CLAUDE_CONFIG_DIR: configDir,
+            },
+        },
+        writer
+    );
+};
 
 // Single WebSocket server that handles chat, shell, and plugin proxy paths.
 const wss = createWebSocketServer(server, {
@@ -114,12 +152,14 @@ const wss = createWebSocketServer(server, {
             cursor: spawnCursor,
             codex: queryCodex,
             opencode: spawnOpenCode,
+            deepseek: queryDeepSeek,
         },
         abortFns: {
             claude: abortClaudeSDKSession,
             cursor: abortCursorSession,
             codex: abortCodexSession,
             opencode: abortOpenCodeSession,
+            deepseek: abortClaudeSDKSession,
         },
         resolveToolApproval,
         getPendingApprovalsForSession,
@@ -174,6 +214,11 @@ app.use('/api', validateApiKey);
 // Authentication routes (public)
 app.use('/api/auth', authRoutes);
 
+// Project creation wizard: create-with-git SSE flow (keylink). Mounted BEFORE
+// the projects module so /api/projects/create-with-git resolves to our handler;
+// every other /api/projects path falls through to the module router below.
+app.use('/api/projects', authenticateToken, projectsCreateRoutes);
+
 // Projects API Routes (protected)
 app.use('/api/projects', authenticateToken, projectModuleRoutes);
 
@@ -202,6 +247,17 @@ app.use('/api/notifications', authenticateToken, notificationRoutes);
 
 // User API Routes (protected)
 app.use('/api/user', authenticateToken, userRoutes);
+
+
+// Lab environments API Routes (protected) — keylink lab-environments feature
+app.use('/api/lab', authenticateToken, labRoutes);
+
+// Forge / Gitea / Console APIs (keylink project-creation wizard backends).
+// forge & gitea self-apply authenticateToken per route; console relies on
+// app-level auth here (it proxies a vault-held token, no per-route guard).
+app.use('/api/forge', forgeRoutes);
+app.use('/api/gitea', giteaRoutes);
+app.use('/api/console', authenticateToken, consoleRoutes);
 
 // Plugins API Routes (protected)
 app.use('/api/plugins', authenticateToken, pluginsRoutes);

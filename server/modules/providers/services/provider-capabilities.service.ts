@@ -75,6 +75,19 @@ const PROVIDER_CAPABILITIES: Record<LLMProvider, ProviderCapabilities> = {
     supportsTokenUsage: true,
     supportsEffort: true,
   },
+  deepseek: {
+    provider: 'deepseek',
+    // DeepSeek runs through the Claude Code agent SDK, so it shares Claude's
+    // permission modes and interactive permission-request support. It does not
+    // expose Claude's reasoning-effort tiers, so supportsEffort is false.
+    permissionModes: ['default', 'auto', 'acceptEdits', 'bypassPermissions', 'plan'],
+    defaultPermissionMode: 'default',
+    supportsImages: true,
+    supportsAbort: true,
+    supportsPermissionRequests: true,
+    supportsTokenUsage: true,
+    supportsEffort: false,
+  },
 };
 
 /**

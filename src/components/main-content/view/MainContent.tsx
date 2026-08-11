@@ -17,6 +17,7 @@ import { useEditorSidebar } from '../../code-editor/hooks/useEditorSidebar';
 import EditorSidebar from '../../code-editor/view/EditorSidebar';
 import type { Project } from '../../../types/app';
 import { TaskMasterPanel } from '../../task-master';
+import PRDEditor from '../../prd-editor/PRDEditor';
 
 import MainContentHeader from './subcomponents/MainContentHeader';
 import MainContentStateView from './subcomponents/MainContentStateView';
@@ -210,6 +211,22 @@ function MainContent({
               <BrowserUsePanel isVisible={activeTab === 'browser'} onShowSettings={onShowSettings} />
             </div>
           )}
+
+          {activeTab === 'prd' && (
+            <div className="h-full overflow-hidden">
+              <PRDEditor
+                project={selectedProject}
+                onClose={() => setActiveTab('chat')}
+                isNewFile
+                onSendToChat={(prompt: string) => {
+                  window.dispatchEvent(new CustomEvent('prd:send-to-chat', { detail: { prompt } }));
+                  setActiveTab('chat');
+                }}
+              />
+            </div>
+          )}
+
+          <div className={`h-full overflow-hidden ${activeTab === 'preview' ? 'block' : 'hidden'}`} />
 
           {activeTab.startsWith('plugin:') && (
             <div className="h-full overflow-hidden">
