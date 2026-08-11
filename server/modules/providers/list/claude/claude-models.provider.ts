@@ -26,7 +26,9 @@ export const CLAUDE_FALLBACK_MODELS: ProviderModelsDefinition = {
       },
     },
     {
-      value: 'fable',
+      // The pinned claude-code CLI (2.1.160) doesn't recognize the short 'fable'
+      // alias — only the canonical id resolves — so send that as the value.
+      value: 'claude-fable-5',
       label: 'Fable',
       description: 'Fable 5 · Most capable for your hardest and longest-running tasks · Uses your limits ~2× faster than Opus',
       effort: {
