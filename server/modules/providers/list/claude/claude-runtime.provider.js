@@ -124,6 +124,37 @@ function resolveToolApproval(requestId, decision) {
   }
 }
 
+/**
+ * Release any lingering tool approvals for the given session id(s).
+ *
+ * Interactive approvals (AskUserQuestion/ExitPlanMode) wait with no timeout, so if a
+ * run ends before the user answers (abort, disconnect, error) their resolvers would
+ * otherwise sit in pendingToolApprovals forever — and getPendingApprovalsForSession()
+ * hands them back on the next chat.subscribe, rendering the same question as duplicate
+ * "Claude needs your input" panels. Resolving each as cancelled settles the awaiting
+ * canUseTool (returns deny) and triggers the cleanup() that deletes it from the map.
+ *
+ * @param {...(string|null|undefined)} sessionIds - app and/or provider session ids
+ * @returns {number} number of approvals cleared
+ */
+function clearPendingApprovalsForSession(...sessionIds) {
+  const targets = new Set(sessionIds.filter(Boolean));
+  if (targets.size === 0) return 0;
+  const toClear = [];
+  for (const [, resolver] of pendingToolApprovals.entries()) {
+    if (targets.has(resolver._sessionId)) {
+      toClear.push(resolver);
+    }
+  }
+  for (const resolver of toClear) {
+    resolver({ cancelled: true });
+  }
+  if (toClear.length > 0) {
+    console.log(`[CLEANUP] Cleared ${toClear.length} orphaned tool approval(s) for session ${[...targets].join(', ')}`);
+  }
+  return toClear.length;
+}
+
 // Match stored permission entries against a tool + input combo.
 // This only supports exact tool names and the Bash(command:*) shorthand
 // used by the UI; it intentionally does not implement full glob semantics,
@@ -769,6 +800,13 @@ async function queryClaudeSDK(command, options = {}, ws, context) {
       sessionName: sessionSummary,
       error
     });
+  } finally {
+    // Release any interactive tool approvals (AskUserQuestion/ExitPlanMode) still
+    // awaiting the user. They wait with no timeout, so a run that ends before the
+    // user answers (abort, disconnect, error) would otherwise leak its resolver in
+    // pendingToolApprovals forever and resurface as phantom permission panels on
+    // the next chat.subscribe.
+    clearPendingApprovalsForSession(sessionId, capturedSessionId);
   }
 }
 
@@ -800,6 +838,11 @@ async function abortClaudeSDKSession(sessionId) {
 
     // Clean up session
     removeSession(sessionId);
+
+    // Belt-and-suspenders: interrupt() should abort the in-flight canUseTool via
+    // context.signal, but if it doesn't the interactive approval would leak. Clear
+    // it explicitly so it can't resurface as a phantom "needs your input" panel.
+    clearPendingApprovalsForSession(sessionId);
 
     return true;
   } catch (error) {
