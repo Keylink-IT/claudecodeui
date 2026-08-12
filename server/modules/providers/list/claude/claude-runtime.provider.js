@@ -141,8 +141,11 @@ function clearPendingApprovalsForSession(...sessionIds) {
   const targets = new Set(sessionIds.filter(Boolean));
   if (targets.size === 0) return 0;
   const toClear = [];
+  console.log(`[CLEANUP-DIAG] Looking for sessions: ${JSON.stringify([...targets])}; pendingToolApprovals.size=${pendingToolApprovals.size}`);
   for (const [, resolver] of pendingToolApprovals.entries()) {
-    if (targets.has(resolver._sessionId)) {
+    const match = targets.has(resolver._sessionId);
+    console.log(`[CLEANUP-DIAG]   resolver._sessionId=${resolver._sessionId} match=${match}`);
+    if (match) {
       toClear.push(resolver);
     }
   }
