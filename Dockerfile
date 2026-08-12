@@ -29,8 +29,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       zip \
       unzip \
       tree \
-      vim-tiny \
+      vim \
+      nano \
+      tmux \
+      htop \
+      rsync \
+      ncdu \
+      fzf \
+      fd-find \
+      pandoc \
+      ffmpeg \
+      gh \
+    && ln -sf "$(command -v fdfind)" /usr/local/bin/fd \
     && rm -rf /var/lib/apt/lists/*
+# ^ interactive/media tool set (2026-08-12): these were hand-installed into the
+#   running container for months and silently lost on every image rebuild
+#   (see lab.keylinkit CHANGELOG 2026-08-12). tools/container-provision.sh in
+#   lab.keylinkit is the runtime fallback — keep its APT_PKGS list in sync.
+#   fd-find installs the binary as `fdfind`; the symlink gives it its usual name.
+
+# yq (mikefarah) — not packaged in Debian bookworm; static binary.
+RUN curl -fsSL -o /usr/local/bin/yq \
+      https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+    && chmod +x /usr/local/bin/yq
 
 # Python deps for in-house MCP servers (lab.keylinkit/mcp-servers/*).
 # `mcp` is the official Anthropic Python MCP SDK. `psycopg[binary]` is the
@@ -41,7 +62,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # on it. The break-system-packages flag was added in pip 23.0+.
 RUN pip3 install --break-system-packages --no-cache-dir \
       "mcp>=1.0.0" \
-      "psycopg[binary]>=3.2.0"
+      "psycopg[binary]>=3.2.0" \
+      pillow \
+      mammoth
+# ^ pillow: image validation (nano-banana --validate, pdf tooling).
+#   mammoth: .docx -> HTML for the Forge PRD parser (2026-08-12, same
+#   rebuild-loss story as the apt block above).
 
 # Graphify (safishamsi/graphify) — knowledge-graph builder + MCP server for
 # codebases. Installed but NOT auto-registered as a user-scope MCP because
@@ -267,6 +293,11 @@ RUN npm install -g @playwright/mcp playwright \
     && chmod -R a+rx /ms-playwright \
     && BIN=$(ls /ms-playwright/chromium_headless_shell-*/chrome-headless-shell-linux64/chrome-headless-shell) \
     && ln -sf "$BIN" /usr/local/bin/playwright-chromium
+
+# socket.io-client — the /setup-monitoring slash command drives Uptime Kuma's
+# Socket.IO API via require('/usr/local/lib/node_modules/socket.io-client').
+# Global install so ad-hoc scripts can use that fixed path (2026-08-12).
+RUN npm install -g socket.io-client
 
 # Reuse the base image's built-in `node` user (uid/gid 1000). It already
 # matches the typical droplet user (waddl, also uid 1000) so bind-mounted
