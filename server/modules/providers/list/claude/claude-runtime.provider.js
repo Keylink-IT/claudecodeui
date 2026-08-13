@@ -141,11 +141,8 @@ function clearPendingApprovalsForSession(...sessionIds) {
   const targets = new Set(sessionIds.filter(Boolean));
   if (targets.size === 0) return 0;
   const toClear = [];
-  console.log(`[CLEANUP-DIAG] Looking for sessions: ${JSON.stringify([...targets])}; pendingToolApprovals.size=${pendingToolApprovals.size}`);
   for (const [, resolver] of pendingToolApprovals.entries()) {
-    const match = targets.has(resolver._sessionId);
-    console.log(`[CLEANUP-DIAG]   resolver._sessionId=${resolver._sessionId} match=${match}`);
-    if (match) {
+    if (targets.has(resolver._sessionId)) {
       toClear.push(resolver);
     }
   }
@@ -535,6 +532,17 @@ async function queryClaudeSDK(command, options = {}, ws, context) {
   // Process-map key: the app session id when the caller supplied one, else
   // the provider-native id once captured (legacy/direct API callers).
   const sessionKey = () => sessionId || capturedSessionId || null;
+
+  // Supersede any prior run for this session that was abandoned mid-approval.
+  // Interactive approvals (AskUserQuestion/ExitPlanMode) wait with no timeout, and
+  // runs are deliberately kept alive across disconnects — so a page reload / re-run
+  // leaves the old run blocked in canUseTool with a leaked resolver that never tears
+  // down. getPendingApprovalsForSession() would then hand it back alongside this
+  // run's, rendering the same question as duplicate "needs your input" panels. The
+  // teardown clear (finally/abort) can't fire for a run that never tears down;
+  // clearing here — before this run creates its own approval — caps it at one pending
+  // approval per session and unblocks the stale run (resolved as cancelled → deny).
+  clearPendingApprovalsForSession(sessionId, capturedSessionId);
 
   const emitNotification = (event) => {
     notifyUserIfEnabled({
